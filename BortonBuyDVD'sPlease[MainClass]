@@ -1,0 +1,317 @@
+package edu.Borton.CPT187.program6;
+
+
+import java.util.Scanner;
+
+
+
+public class MainClass {
+
+	public static final String[] MAIN_MENU_OPTION = { "Load Product Catalog", "Quit"};
+	public static final String[] SEARCH_MENU_OPTION = { "Search for ID", "Return to Main Menu"};
+	public static final String[] PURCHASE_MENU_OPTION = { "Purchase copies of the DVD", "Return to search menu"};
+	public static final char[] MENU_OPTIONS = {'A','B','Q'};
+
+	public static void main(String[] args)
+	{
+		Scanner input = new Scanner(System.in);
+
+		String userName="";
+		char menuSelection=' ';
+
+		WritePurchaseOrder currentWritePurchaseOrder = new WritePurchaseOrder(null);
+		ProductInventory currentInventory = new ProductInventory();
+
+		displayWelcomeBanner();
+		userName= getUserName(input);
+		menuSelection = validateMenuSelection(input);
+		while (menuSelection != 'Q') {
+			currentInventory.setProductArrays(getFileName(input));
+			if (currentInventory.getRecordCount()>=0)
+			{
+				menuSelection = validateSearchSelection(input);
+				while (menuSelection !='B')
+				{
+					currentInventory.setSearchedIndex(validateSearchID(input));
+					if (currentInventory.getBinSearch(menuSelection) >= 0)
+					{
+						displaySearchResult(currentInventory.getProductID(),currentInventory.getProductTitle(),currentInventory.getProductPrice());
+						menuSelection = validatePurchaseSelection(input);
+						if (menuSelection =='A')
+						{
+							validateHowMany(input);
+							currentWritePurchaseOrder.setWriteOneRecord(0, null, 0, 0, 0);
+							displayPurchaseConformation(currentInventory.getProductID(), currentInventory.getHowMany(menuSelection), currentInventory.getTotalCost());
+							
+						}
+						
+						
+					}
+					else
+					{
+						displaySearchResult();
+					}//end of if for getSearchIndex
+
+					menuSelection = validateSearchSelection(input);
+
+				}//end of menu !=B
+
+			}//end of first if
+			else
+			{
+				displayFileError();
+			}
+			if (currentInventory.getSearchCount() > 0)
+			{
+				displaySearchReport(userName,currentInventory.getSearchCount(), currentInventory.getSeachesFound(),currentInventory.getSearchesNotFound());
+			}
+			menuSelection = validateMenuSelection(input);
+
+
+
+		}//end of main while
+
+
+		if (currentInventory.getFileCount()>0)
+		{
+			
+			displayFileReport(userName,currentInventory.getFileCount(),currentInventory.getFilesFound(),currentInventory.getFilesNotFound());
+		}
+
+		displayFarewellMessage(userName); 
+
+
+	}//End of class
+
+	public static void displayOrderReport() {
+		setProductArrays(String borrowedFileName, int borrowedSize)
+		
+	}
+
+	public static void displayPurchaseConformation(int borrowedID,int borrowedQty,double borrowedTotal) 
+	{
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.println("Purchase Conformation");
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.printf("\n%-30s%-8d", "Movie ID:", borrowedID);
+		System.out.printf("\n%-30s%-8s", "Total number ordered:", borrowedQty);
+		System.out.printf("\n%-29s%1s%-8.2f", "Total Price:","$", borrowedTotal);
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		
+	}
+
+	public static void displayWelcomeBanner()
+	{
+		System.out.println("Welcome to Buy DVD's Please!!");
+		System.out.println("This program will help you find those hard to find DVD's!!!");
+	}
+
+	//VR method user name
+	public static String getUserName(Scanner borrowedinput) 
+	{
+		System.out.println("\nPlease enter your first name: ");
+		return borrowedinput.next();
+	}
+
+	public static String getFileName(Scanner borrowedInput)
+	{
+		String fileName = " ";
+		System.out.println("\nPlease enter valid file name:");
+		System.out.println("\nEnter your number here:");
+
+		fileName = borrowedInput.next();
+		System.out.println();
+
+		while (fileName == null)
+		{
+			System.out.println("\nFile not found");
+			System.out.println("\nPlease re-enter a valid file name");
+			fileName = borrowedInput.next();
+			System.out.println();
+		}
+		return fileName;
+	}
+
+	public static int validateSearchID(Scanner borrowedInput)
+	{
+		int localID = 0;
+		System.out.println("\nPlease enter a movie ID number.");
+		localID = borrowedInput.nextInt();
+
+
+
+		while (localID < 0 )
+		{
+			System.out.println("\nPlease enter a valid ID number greater than 0");
+			localID = borrowedInput.nextInt();
+			System.out.println();
+		}
+		return localID;
+	}
+
+	public static char validateSearchSelection(Scanner borrowedInput)
+	{
+		char localSelection = ' ';
+		displaySearchMenu();
+		localSelection = borrowedInput.next().toUpperCase().charAt(0);
+		System.out.println();
+
+		while (localSelection != 'A'&& localSelection != 'B')
+		{
+			System.out.println("\nPlease enter a valid menu option");
+			displaySearchMenu();
+			localSelection = borrowedInput.next().toUpperCase().charAt(0);
+			System.out.println();
+		}
+		return localSelection;
+	}
+
+	public static void displaySearchMenu()
+	{
+		System.out.println("\n Search Menu");
+		System.out.printf("%-3s%11s\n", MENU_OPTIONS[0], SEARCH_MENU_OPTION[0]);
+		System.out.printf("%-3s%11s\n", MENU_OPTIONS[1], SEARCH_MENU_OPTION[1] );
+
+		System.out.println("\nEnter your selection here:");
+	}
+
+	public static void displaySearchResult(int productIDs, String productTitles, double productPrices) 
+	{
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.println("Search Results");
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.printf("\n%-30s%-8d", "Movie ID:", productIDs);
+		System.out.printf("\n%-30s%-8s", "Movie Name:", productTitles);
+		System.out.printf("\n%-29s%1s%-8.2f", "Movie Price:","$", productPrices);
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+	}
+
+	public static void displaySearchResult() 
+	{
+		System.out.println("Movie ID not found. Please try again");
+
+	}
+
+
+	public static void displayFileError()
+	{
+		System.out.println("File not found, please try again.");
+
+	}
+
+	public static void displaySearchReport(String userName, int searchCount, int seachesFound, int searchesNotFound)
+	{
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.println("Search Report");
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.printf("\n%-30s%-9d", "Number of Searches:", searchCount);
+		System.out.printf("\n%-30s%-9d", "Number of Movies found:", seachesFound);
+		System.out.printf("\n%-30s%-9d", "Number of Movies not found:", searchesNotFound);
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	}
+
+	public static char validateMenuSelection(Scanner borrowedInput)
+	{
+		char localSelection = ' ';
+		displayMainMenu();
+		localSelection = borrowedInput.next().toUpperCase().charAt(0);
+		System.out.println();
+
+		while (localSelection != 'A'&& localSelection != 'Q')
+		{
+			System.out.println("\nPlease enter a valid menu option");
+			displayMainMenu();
+			localSelection = borrowedInput.next().toUpperCase().charAt(0);
+			System.out.println();
+		}
+		return localSelection;
+	}
+
+
+	public static void displayFileReport(String userName, int fileCount, int filesFound, int filesNotFound)
+	{
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.println("File Report");
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.printf("\n%-30s%-9d", "Number files Searches:", fileCount);
+		System.out.printf("\n%-30s%-9d", "Number files found:", filesFound);
+		System.out.printf("\n%-30s%-9d", "Number files not found:", filesNotFound);
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+	}
+
+	public static void displayMainMenu()
+	{
+		System.out.println("\n MAIN_MENU");
+		System.out.printf("%-3s%11s\n", MENU_OPTIONS[0], MAIN_MENU_OPTION[0]);
+		System.out.printf("%-3s%11s\n", MENU_OPTIONS[2], MAIN_MENU_OPTION[1] );
+
+		System.out.println("\nEnter your selection here:");
+	}//end of main Menu
+
+	public static void displayFarewellMessage(String userName)
+
+	{
+		System.out.println();
+		System.out.println(userName + ", Thank you for shopping with Buy DVD's Please. We hope you have enjoyed it.\n");
+
+	}
+	
+	public static int validateHowMany(Scanner input) 
+	{
+		int localhowMany = 0;
+		System.out.println("\n~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ");
+		System.out.println("Please enter the number of DVD's you would like to buy");
+		System.out.println("\n~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ");
+		localhowMany = input.nextInt();
+		System.out.println();
+
+		while (localhowMany <= 0 )
+		{
+			System.out.println("\n~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ");
+			System.out.println("Please enter a number greater than 0");
+			System.out.println("Please enter the number of DVD's you would like to buy");
+			System.out.println("\n~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ");
+			localhowMany = input.nextInt();
+			System.out.println();
+		}
+
+
+		return localhowMany;
+	}
+	
+	public static char validatePurchaseSelection(Scanner borrowedInput)
+	{
+		char localSelection = ' ';
+		displayPurchaseMenu();
+		localSelection = borrowedInput.next().toUpperCase().charAt(0);
+		System.out.println();
+
+		while (localSelection != 'A'&& localSelection != 'B')
+		{
+			System.out.println("\nPlease enter a valid menu option");
+			displayPurchaseMenu();
+			localSelection = borrowedInput.next().toUpperCase().charAt(0);
+			System.out.println();
+		}
+		return localSelection;
+	}
+	
+	public static void displayPurchaseMenu()
+	{
+		System.out.println("\n PURCHASE_MENU");
+		System.out.printf("%-3s%11s\n", MENU_OPTIONS[0], PURCHASE_MENU_OPTION[0]);
+		System.out.printf("%-3s%11s\n", MENU_OPTIONS[1], PURCHASE_MENU_OPTION[1] );
+
+		System.out.println("\nEnter your selection here:");
+	}//end of main Menu
+
+
+}
+
+
